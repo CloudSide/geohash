@@ -1,208 +1,91 @@
-[![](http://vdisk.me/static/images/vi/logo/32x32.png)](#) VdiskSDK-PHP
+geohash
 ============
 
-请先前往 [微盘开发者中心](http://vdisk.weibo.com/developers/) 注册为微盘开发者, 并创建应用.
+这年头和LBS相关的应用越来越火. 从foursquare的热闹程度就可见一般 (什么, 没听过 foursquare... 哥们, 你 out 了). 和 LBS有关的应用一般都包括一些共同的操作, 最常见的一个, 就是找附近的东东（餐馆, 商店, 妞....）. 所以, 这里就抛出了一个问题, 怎样才能知道两个物体离得近呢?
 
-RESTful API文档:
-[![](http://vdisk.me/static/images/vi/icon/16x16.png)](http://vdisk.weibo.com/developers/index.php?module=api&action=apidoc)
-http://vdisk.weibo.com/developers/index.php?module=api&action=apidoc
-
-
-Demo演示地址: http://vauth.appsina.com/
-
-
-SDK For PHP文档地址: http://vauth.appsina.com/Doc/namespaces/Vdisk.html
-
-
-关于微盘OPENAPI、SDK使用以及技术问题请联系: [@一个开发者](http://weibo.com/smcz)
-
-QQ群: 134719337、162285095
-
-邮箱: [cloudside@sina.cn](mailto:cloudside@sina.cn)
+[@一个开发者](http://weibo.com/smcz)
 
 [![](http://service.t.sina.com.cn/widget/qmd/1656360925/02781ba4/4.png)](http://weibo.com/smcz)
 
 
 ### Requirements
 
-* PHP >= 5.3.1
-* [PHP cURL]
+* PHP >= 4
 
 ### Usage
 
 
-- 用户授权
+- 例如: 用iPhone/android手机定位得到理想国际大厦的经纬度: 39.98123848, 116.30683690 然后查找附近的妞 ![](http://www.sinaimg.cn/uc/myshow/blog/misc/gif/E___6715EN00SIGG.gif)
 
 ```php
 
-//实例化 \Vdisk\OAuth2
-$oauth2 = new \Vdisk\OAuth2('您应用的appkey', '您应用的appsecret');
-$auth_url = $oauth2->getAuthorizeURL('您在开发者中心设置的跳转地址');
-/*
-引导用户访问授权页面: $auth_url
-*/
+require_once('geohash.class.php');
+$geohash = new Geohash;
+//得到这点的hash值
+$hash = $geohash->encode(39.98123848, 116.30683690);
+//取前缀，前缀约长范围越小
+$prefix = substr($hash, 0, 6);
+//取出相邻八个区域
+$neighbors = $geohash->neighbors($prefix);
+array_push($neighbors, $prefix);
+
+print_r($neighbors);
 
 ```
 
-- 获得access token
+- 得到9个geohash值
 
 ```php
 
-//用户授权成功后, 会跳转到你的callback地址, 您需要用code参数换取access token
+//得到9个geohash值
 
-if (isset($_REQUEST['code'])) {
-  
-  $keys = array();
-	$keys['code'] = $_REQUEST['code'];
-	$keys['redirect_uri'] = '您在开发者中心设置的跳转地址';
-	
-	try {
-		
-		$token = $oauth2->getAccessToken('code', $keys);
-		print_r(token); //得到access token
-		
-	} catch (Exception $e) {
-		
-		echo "<pre>";
-		print_r($e->getMessage());
-		echo "</pre>";
-		echo "<a href='index.php'>返回</a>";
-	}
-}
+Array
+(
+    [top] => wx4eqx
+    [bottom] => wx4eqt
+    [right] => wx4eqy
+    [left] => wx4eqq
+    [topleft] => wx4eqr
+    [topright] => wx4eqz
+    [bottomright] => wx4eqv
+    [bottomleft] => wx4eqm
+    [0] => wx4eqw
+)
 
 ```
 
-- 获得用户信息
+- 范围如图:
+ 
+![](http://s15.sinaimg.cn/orignal/62ba0fddtab3b8381ce8e&690)
 
-```php
 
-$client = new \Vdisk\Client($oauth2);
-$client->setDebug(true); //开启调试模式
-		
-try {
-			
-	// Attempt to retrieve the account information
-	$response = $client->accountInfo(); //调用accountInfo方法
-	$accountInfo = $response['body'];
-	// Dump the output
-	echo "<pre>";
-	print_r($accountInfo); //打印用户信息
-	echo "</pre>";
 
-} catch (\Vdisk\Exception $e) { //捕获异常
-			
-	echo "<pre>";
-	echo get_class($e) . ' ' . '#' . $e->getCode() . ': ' . $e->getMessage();
-	echo "</pre>";
-}
+- 用sql语句查询
 
+```sql
+SELECT * FROM xy WHERE geohash LIKE 'wx4eqw%';
+SELECT * FROM xy WHERE geohash LIKE 'wx4eqx%';
+SELECT * FROM xy WHERE geohash LIKE 'wx4eqt%';
+SELECT * FROM xy WHERE geohash LIKE 'wx4eqy%';
+SELECT * FROM xy WHERE geohash LIKE 'wx4eqq%';
+SELECT * FROM xy WHERE geohash LIKE 'wx4eqr%';
+SELECT * FROM xy WHERE geohash LIKE 'wx4eqz%';
+SELECT * FROM xy WHERE geohash LIKE 'wx4eqv%';
+SELECT * FROM xy WHERE geohash LIKE 'wx4eqm%';
 ```
 
-- 获得文件列表、目录/文件信息
+- 看一下是否用上索引 (一共有50多万行测试数据):
 
-```php
+![](http://s15.sinaimg.cn/orignal/62ba0fddtab3b8463f9ce&690)
 
-$client = new \Vdisk\Client($oauth2, 'basic');
-//$client->setDebug(true);  //开启调试模式
+![](http://s1.sinaimg.cn/orignal/62ba0fddtab3b84d6c250&690)
 
-try {
-	
-	if (isset($_GET['path'])) {
-		
-		$path = $_GET['path'];
-	
-	} else {
-		
-		$path = '/';	
-	}
-	
-	// Attempt to retrieve the account information
-	$response = $client->metaData($path); //调用metaData方法
-	$metaData = $response['body'];
+![](http://s8.sinaimg.cn/orignal/62ba0fddtab3b86ca9007&690)
 
-} catch (\Vdisk\Exception $e) { //捕获异常
-	
-	echo "<pre>";
-	echo get_class($e) . ' ' . '#' . $e->getCode() . ': ' . $e->getMessage();
-	echo "</pre>";
-}
 
-```
+其他资料：
+- geohash演示:  http://openlocation.org/geohash/geohash-js/
+- wiki: http://en.wikipedia.org/wiki/Geohash
+- 原理: http://blog.sina.com.cn/s/blog_62ba0fdd0100tr98.html
 
-- 下载文件
-
-```php
-
-$client = new \Vdisk\Client($oauth2, 'basic');
-
-$client->setDebug(true); //开启调试模式
-
-try {
-
-    $response = $client->getFile('云端文件的全路径', '下载到本地目标文件的全路径');
-   
-    // Dump the output
-    echo "<pre>";
-    print_r($response);
-    echo "</pre>";
-
-} catch (\Vdisk\Exception $e) { //捕获异常
-
-    echo "<pre>";
-    echo get_class($e) . ' ' . '#' . $e->getCode() . ': ' . $e->getMessage();
-    echo "</pre>";
-}
-
-```
-
-- 上传文件(POST)
-
-```php
-
-$client = new \Vdisk\Client($oauth2, 'basic');
-
-$client->setDebug(true); //开启调试模式
-
-try {
-
-    $response = $client->putFile('本地文件真实路径', '要上传的目标全路径');
-   
-    // Dump the output
-    echo "<pre>";
-    print_r($response);
-    echo "</pre>";
-
-} catch (\Vdisk\Exception $e) { //捕获异常
-
-    echo "<pre>";
-    echo get_class($e) . ' ' . '#' . $e->getCode() . ': ' . $e->getMessage();
-    echo "</pre>";
-}
-
-```
-
-- 上传文件(PUT)
-
-```php
-$client = new \Vdisk\Client($oauth2, 'basic');
-
-$client->setDebug(true); //开启调试模式
-
-try {
-
-    $response = $client->putStream(fopen('本地文件真实路径', 'r'), '云端目标文件全路径');
-   
-    // Dump the output
-    echo "<pre>";
-    print_r($response);
-    echo "</pre>";
-
-} catch (\Vdisk\Exception $e) { //捕获异常
-
-    echo "<pre>";
-    echo get_class($e) . ' ' . '#' . $e->getCode() . ': ' . $e->getMessage();
-    echo "</pre>";
-}
-
-```
 
