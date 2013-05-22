@@ -10,12 +10,12 @@
 
 
 /**
-*
-* Encode and decode geohashes
-*
-* Find neighbors
-*
-*/
+ *
+ * Encode and decode geohashes
+ *
+ * Find neighbors
+ *
+ */
 
 class Geohash {
 
