@@ -86,6 +86,6 @@ SELECT * FROM xy WHERE geohash LIKE 'wx4eqm%';
 其他资料：
 - geohash演示:  http://openlocation.org/geohash/geohash-js/
 - wiki: http://en.wikipedia.org/wiki/Geohash
-- 原理: http://blog.sina.com.cn/s/blog_62ba0fdd0100tr98.html
+- 原理: https://github.com/CloudSide/geohash/wiki
 
 
