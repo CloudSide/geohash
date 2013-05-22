@@ -2,9 +2,9 @@
 /**
  * Geohash generation class for php 
  *
- * This file copyright (C) 2011 SAE (http://sae.sina.com.cn/)
+ * This file copyright (C) 2013 Bruce Chen (http://weibo.com/smcz)
  *
- * Author: Bruce Chen
+ * Author: Bruce Chen (weibo: @一个开发者)
  *
  */
 
@@ -19,7 +19,7 @@
 
 class Geohash {
 
-  private $bitss = array(16, 8, 4, 2, 1);
+	private $bitss = array(16, 8, 4, 2, 1);
 	private $neighbors = array();
 	private $borders = array();
 	
@@ -290,5 +290,3 @@ class Geohash {
 
 
 
-
-?>
