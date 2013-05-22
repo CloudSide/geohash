@@ -58,6 +58,7 @@ class Geohash {
 	
 	/**
 	* Decode a geohash and return an array with decimal lat,long in it
+	* Author: Bruce Chen (weibo: @一个开发者)
 	*/
 	public function decode($hash) {
 	
@@ -140,6 +141,7 @@ class Geohash {
 	
 	/**
 	* Encode a hash from given lat and long
+	* Author: Bruce Chen (weibo: @一个开发者)
 	*/
 	public function encode($lat, $long) {
 	
@@ -230,6 +232,8 @@ class Geohash {
 	* precision of 42 is 0.5
 	* precision of 42.4 is 0.05
 	* precision of 42.41 is 0.005 etc
+	*
+	* Author: Bruce Chen (weibo: @一个开发者)
 	*/
 	private function precision($number) {
 	
@@ -247,6 +251,8 @@ class Geohash {
 	/**
 	* create binary encoding of number as detailed in http://en.wikipedia.org/wiki/Geohash#Example
 	* removing the tail recursion is left an exercise for the reader
+	* 
+	* Author: Bruce Chen (weibo: @一个开发者)
 	*/
 	private function binEncode($number, $min, $max, $bitcount) {
 	
@@ -268,6 +274,8 @@ class Geohash {
 	/**
 	* decodes binary encoding of number as detailed in http://en.wikipedia.org/wiki/Geohash#Example
 	* removing the tail recursion is left an exercise for the reader
+	* 
+	* Author: Bruce Chen (weibo: @一个开发者)
 	*/
 	private function binDecode($binary, $min, $max) {
 	
