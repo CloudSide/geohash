@@ -76,9 +76,17 @@ SELECT * FROM xy WHERE geohash LIKE 'wx4eqm%';
 
 - 看一下是否用上索引 (一共有50多万行测试数据):
 
+索引:
+
 ![](http://s15.sinaimg.cn/orignal/62ba0fddtab3b8463f9ce&690)
 
+数据:
+
 ![](http://s1.sinaimg.cn/orignal/62ba0fddtab3b84d6c250&690)
+
+```sql
+EXPLAIN SELECT * FROM xy WHERE geohash LIKE 'wx4eqw%';
+```
 
 ![](http://s8.sinaimg.cn/orignal/62ba0fddtab3b86ca9007&690)
 
